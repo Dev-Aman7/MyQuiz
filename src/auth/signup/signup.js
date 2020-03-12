@@ -5,8 +5,10 @@ const person = require("../../Schemas/person");
 var jwt = require("jsonwebtoken");
 var bodyParser = require("body-parser");
 var urlencodedParser = bodyParser.urlencoded({ extended: true });
-router.all("/", urlencodedParser, (req, res, next) => {
+
+router.post("/", urlencodedParser, (req, res, next) => {
   console.log(req.body);
+  console.log('in auth/signup')
   var password = req.body.password;
   data = req.body;
   bcrypt.genSalt(10, function(err, salt) {
@@ -31,9 +33,10 @@ router.all("/", urlencodedParser, (req, res, next) => {
             .then(token => {
               res.json({
                 code: 0,
-                message: "User Saved Successfully",
+                message: "User Saved Successfully in database",
                 token: token,
-                redirectTo: "/"
+                redirectTo: "/",
+                success:0
               });
             })
             .catch(err => {
@@ -41,14 +44,23 @@ router.all("/", urlencodedParser, (req, res, next) => {
               if (err.code == "11000") {
                 res.json({
                   code: 0,
-                  message: `This ${JSON.stringify(err.keyValue)} already exist`
+                  message: `This ${JSON.stringify(err.keyValue)} already exist`,
+                  success:0
                 });
-              } else res.send(err);
+              } else res.json({
+                message:err,
+                success:1,
+                code:0
+              });
             });
           // Store hash in your password DB.
         })
         .catch(err => {
-          res.send(err);
+          res.json({
+            message:err,
+            success:1,
+            code:1
+          });
         });
     }
   });

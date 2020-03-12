@@ -5,7 +5,10 @@ const person = require("../../Schemas/person");
 var jwt = require("jsonwebtoken");
 var bodyParser = require("body-parser");
 var urlencodedParser = bodyParser.urlencoded({ extended: true });
+
+
 router.all("/", urlencodedParser, (req, res, next) => {
+  console.log('here in auth/signup');
   console.log(req.body);
   var password = req.body.password;
   data = req.body;
@@ -21,19 +24,18 @@ router.all("/", urlencodedParser, (req, res, next) => {
           addUser
             .save()
             .then(() => {
-              res.cookie("username", person.username);
-              res.cookie("userId", person._id);
-              res.cookie("accountType", person.accountType);
+       
               var token = jwt.sign("hello", process.env.Secret);
-              res.cookie("token", token);
               return token;
             })
             .then(token => {
+              console.log('response sent from here');
               res.json({
                 code: 0,
-                message: "User Saved Successfully",
+                message: "User Saved Successfully in database",
                 token: token,
-                redirectTo: "/"
+                redirectTo: "/",
+                success:0
               });
             })
             .catch(err => {
@@ -41,14 +43,23 @@ router.all("/", urlencodedParser, (req, res, next) => {
               if (err.code == "11000") {
                 res.json({
                   code: 0,
-                  message: `This ${JSON.stringify(err.keyValue)} already exist`
+                  message: `This ${JSON.stringify(err.keyValue)} already exist`,
+                  success:1
                 });
-              } else res.send(err);
+              } else res.json({
+                code: 1,
+                message: `This ${JSON.stringify(err.keyValue)} already exist`,
+                success:1
+              });
             });
           // Store hash in your password DB.
         })
         .catch(err => {
-          res.send(err);
+          res.sendres.json({
+            code: 1,
+            message: err,
+            success:1
+          });;
         });
     }
   });
