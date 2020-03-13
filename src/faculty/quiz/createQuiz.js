@@ -4,11 +4,12 @@ var router = express.Router();
 var mid = require("../../middleware/middleware");
 dataall = {};
 
-router.all("/", async (req, res) => {
+router.all("/", mid.auth, async (req, res) => {
+	console.log("in add Quiz");
 	controller
 		.addQuestions(req.body.questions)
 		.then(result => {
-			console.log("result received", result);
+			// console.log("result received", result);
 			data = {
 				quizName: req.body.quizName,
 				questionId: result.questionId,
@@ -17,8 +18,8 @@ router.all("/", async (req, res) => {
 			return controller.addQuiz(data);
 		})
 		.then(resul => {
-			console.log("adding quiz to person", resul);
-			controller.addQuizToPerson(resul.quizId, req.cookies["username"]);
+			// console.log("adding quiz to person", resul);
+			controller.addQuizToPerson(resul.quizId, req.username);
 		})
 		.then(() =>
 			res.json({
